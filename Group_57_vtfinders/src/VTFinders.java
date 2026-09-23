@@ -1,4 +1,13 @@
 import java.util.Scanner;
+
+/**
+ * Runner class for VT Finders.
+ *
+ * Handles the main loop for user interaction, allowing users to report and browse lost items.
+ *
+ * @author Phani Kathuroju
+ * @version 9.23.26
+ */
 public class VTFinders
 {
     private static LostItemDatabase database;
