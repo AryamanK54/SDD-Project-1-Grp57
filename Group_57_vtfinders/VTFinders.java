@@ -120,6 +120,8 @@ public class VTFinders
                 running = false;
             }   
         }
+
+        scanner.close();
     }
 
 }
