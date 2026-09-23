@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 public class Administrator
 {
     private String adminId;
@@ -26,16 +25,7 @@ public class Administrator
 
     public void removeItem(String id)
     {
-        ArrayList<LostItem> = items = database.getAllItems();
-
-        for (int i  = 0; i < items.size(); i++)
-        {
-            if (items.get(i).getId().equals(id))
-            {
-                items.remove(i)
-                return;
-            }
-        }
+        database.removeItem(id);
     }
     
 }
