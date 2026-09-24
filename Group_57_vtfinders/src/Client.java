@@ -44,14 +44,14 @@ public class Client {
      * re-prompting on each field until it's acceptable, generates a unique ID,
      * and adds the resulting LostItem to the shared database.
      */
-    public void reportItem() {
+    public void reportItem(String name, String description, String location, String date, String category) {
         System.out.println("/n---- Report a lost item -----");
 
-        String name = promptForRequiredField("Item name", MAX_FIELDS_LENGTH);
-        String description = promptForRequiredField("Description", MAX_DESCRIPTION_LENGTH);
-        String location = promptForRequiredField("Location found", MAX_FIELDS_LENGTH);
-        String date = promptForDate();
-        String category = promptForCategory();
+        // String name = promptForRequiredField("Item name", MAX_FIELDS_LENGTH);
+        // String description = promptForRequiredField("Description", MAX_DESCRIPTION_LENGTH);
+        // String location = promptForRequiredField("Location found", MAX_FIELDS_LENGTH);
+        // String date = promptForDate();
+        // String category = promptForCategory();
         String id = generateId();
 
         LostItem item = new LostItem(id, name, description, location, date, category);
@@ -65,9 +65,9 @@ public class Client {
     /**
      * Prompts the user for a category, then displays all items in said category
      */
-    public void browseItems() {
-        System.out.println("\n--- Browse Items by Category ---");
-        String category = promptForCategory();
+    public void browseItems(String category) {
+        // System.out.println("\n--- Browse Items by Category ---");
+        // String category = promptForCategory();
 
         ArrayList<LostItem> results = database.getItemsByCategory(category);
 
