@@ -1,4 +1,7 @@
+//import student.TestCase;
+
 import java.util.ArrayList;
+import static org.junit.Assert.*;
 
 /**
  * Test class for LostItemDatabase
@@ -6,7 +9,7 @@ import java.util.ArrayList;
  * @author Group 57
  * @version 2026.09.23
  */
-public class LostItemDatabaseTest extends student.TestCase {
+public class LostItemDatabaseTest /**extends TestCase*/{
     private LostItemDatabase database;
     private LostItem hydroFlask;
     private LostItem notebook;

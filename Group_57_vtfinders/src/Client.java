@@ -1,7 +1,5 @@
-
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -9,6 +7,10 @@ import java.util.Scanner;
  * Client class for VT Finders.
  *
  * Handles the user-facing operations for reporting and browsing lost items.
+ * Client owns all console prompting/validation for item details. It is
+ * handed the single shared Scanner (created once in VTFinders) rather than
+ * creating its own, so there's only ever one Scanner reading from System.in
+ * for the whole program.
  *
  * @author Aryaman Kapoor
  * @version 9.23.26
@@ -18,6 +20,9 @@ public class Client {
     // Fields -----------------------------------------------------------------
     private LostItemDatabase database;
     private Scanner scanner;
+
+    private static final int MAX_FIELD_LENGTH = 100;
+    private static final int MAX_DESCRIPTION_LENGTH = 300;
 
     private static final ArrayList<String> validCategories = new ArrayList<>();
 
@@ -29,13 +34,15 @@ public class Client {
         validCategories.add("Miscellaneous");
     }
 
-    private static final int MAX_FIELDS_LENGTH = 100; // name and location cap
-    private static final int MAX_DESCRIPTION_LENGTH = 300; //description cap
-
     // Constructor ------------------------------------------------------------
-    public Client(LostItemDatabase db) {
+    /**
+     * @param db      the shared lost item database
+     * @param scanner the single Scanner shared with VTFinders, so only one
+     *                Scanner ever reads from System.in for the whole program
+     */
+    public Client(LostItemDatabase db, Scanner scanner) {
         this.database = db;
-        this.scanner = new Scanner(System.in);
+        this.scanner = scanner;
     }
 
     // Methods ----------------------------------------------------------------
@@ -44,14 +51,14 @@ public class Client {
      * re-prompting on each field until it's acceptable, generates a unique ID,
      * and adds the resulting LostItem to the shared database.
      */
-    public void reportItem(String name, String description, String location, String date, String category) {
-        System.out.println("/n---- Report a lost item -----");
+    public void reportItem() {
+        System.out.println("\n---- Report a lost item -----");
 
-        // String name = promptForRequiredField("Item name", MAX_FIELDS_LENGTH);
-        // String description = promptForRequiredField("Description", MAX_DESCRIPTION_LENGTH);
-        // String location = promptForRequiredField("Location found", MAX_FIELDS_LENGTH);
-        // String date = promptForDate();
-        // String category = promptForCategory();
+        String name = promptForRequiredField("Item name", MAX_FIELD_LENGTH);
+        String description = promptForRequiredField("Description", MAX_DESCRIPTION_LENGTH);
+        String location = promptForRequiredField("Location found", MAX_FIELD_LENGTH);
+        String date = promptForDate();
+        String category = promptForCategory();
         String id = generateId();
 
         LostItem item = new LostItem(id, name, description, location, date, category);
@@ -61,13 +68,13 @@ public class Client {
         System.out.println(item);
     }
 
-    //-------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     /**
-     * Prompts the user for a category, then displays all items in said category
+     * Prompts the user for a category, then displays all items in that category.
      */
-    public void browseItems(String category) {
-        // System.out.println("\n--- Browse Items by Category ---");
-        // String category = promptForCategory();
+    public void browseItems() {
+        System.out.println("\n--- Browse Items by Category ---");
+        String category = promptForCategory();
 
         ArrayList<LostItem> results = database.getItemsByCategory(category);
 
@@ -84,7 +91,9 @@ public class Client {
 
     // Validation and Scanner helper methods ----------------------------------
     /**
-     * Checks whether the given input is a valid category
+     * @param input
+     * @return boolean
+     *         Checks whether the given input is a valid category
      */
     public boolean isValidCategory(String input) {
         if (input == null) {
@@ -100,27 +109,46 @@ public class Client {
         return false;
     }
 
-    //-------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     /**
-     * Repeatedly prompt for a category until a the user enters one of the 5
-     * valid categories
+     * @return String
+     *         Repeatedly prompt for a category number until the user enters a valid
+     *         choice (1 through the number of categories), then returns the
+     *         matching category name.
      */
     public String promptForCategory() {
         while (true) {
-            System.out.println("Choose a category" + validCategories);
-            System.out.print("Category: ");
-            String input = scanner.nextLine();
+            System.out.println("Choose a category:");
+            for (int i = 0; i < validCategories.size(); i++) {
+                System.out.println((i + 1) + ": " + validCategories.get(i));
+            }
+            System.out.print("Category (1-" + validCategories.size() + "): ");
+            String input = scanner.nextLine().trim();
 
-            if (isValidCategory(input)) {
-                return input.trim();
+            int choice;
+            try {
+                choice = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Error: \"" + input + "\" is not a valid choice. Please enter a number 1-"
+                        + validCategories.size() + ".");
+                continue;
             }
 
-            System.out.println("Error: |" + input + "| is not a valid category. Please chose of one: " + validCategories);
+            if (choice < 1 || choice > validCategories.size()) {
+                System.out.println("Error: \"" + choice + "\" is not a valid choice. Please enter a number 1-"
+                        + validCategories.size() + ".");
+                continue;
+            }
+
+            return validCategories.get(choice - 1);
         }
     }
 
     /**
-     * Repeatedly prompts for a non-blank field up to maxLength characters.
+     * @param fieldLabel
+     * @param maxLength
+     *                   Repeatedly prompts for a non-blank field up to maxLength
+     *                   characters.
      */
     private String promptForRequiredField(String fieldLabel, int maxLength) {
         while (true) {
@@ -132,9 +160,11 @@ public class Client {
                 continue;
             }
 
-            if (input.trim().length() > maxLength) {
-                System.out.println("Error: " + fieldLabel + " is too long (max " + maxLength
-                        + " characters). Please shorten it.");
+            int length = input.trim().length();
+            if (length > maxLength) {
+                int over = length - maxLength;
+                System.out.println("Error: " + fieldLabel + " is " + length + "/" + maxLength
+                        + " characters (" + over + " over). Please shorten it.");
                 continue;
             }
 
@@ -194,7 +224,7 @@ public class Client {
             return false;
         }
 
-        int[] daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        int[] daysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
         int maxDay = daysInMonth[month - 1];
         if (month == 2 && isLeapYear(year)) {
             maxDay = 29;

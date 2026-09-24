@@ -1,7 +1,6 @@
-
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.After;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,28 +8,31 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import static org.junit.Assert.*;
 
 /**
- * Tests all the methods in the client class
+ * Unit tests for Client.
  *
  * Client owns its own Scanner(System.in) prompting loops, so these tests
- * simulate user input by redirecting System.in before constructing each Client,
- * and capture console output via System.out to confirm the right prompts/errors
- * are shown and the right values end up in the database.
+ * simulate user input by redirecting System.in before constructing each
+ * Client, and capture console output via System.out to confirm the right
+ * prompts/errors are shown and the right values end up in the database.
+ *
+ * Assumes JUnit 4 and that LostItem's toString() follows the
+ * "Name - Description - Location - Date - Category" format shown in the
+ * spec doc, since LostItem doesn't expose a getDate()/getId() getter.
  */
 public class ClientTest {
 
-    //Fields ------------------------------------------------------------------
     private LostItemDatabase database;
     private final InputStream originalIn = System.in;
     private final PrintStream originalOut = System.out;
     private ByteArrayOutputStream outputCapture;
 
-    // SetUp Method
     @Before
-    public void SetUp() {
+    public void setUp() {
         database = new LostItemDatabase();
         outputCapture = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputCapture, true, StandardCharsets.UTF_8));
@@ -42,12 +44,10 @@ public class ClientTest {
         System.setOut(originalOut);
     }
 
-    /**
-     * Builds a Client whose Scanner reads the given simulated user input.
-     */
+    /** Builds a Client whose Scanner reads the given simulated user input. */
     private Client clientWithInput(String simulatedInput) {
         System.setIn(new ByteArrayInputStream(simulatedInput.getBytes(StandardCharsets.UTF_8)));
-        return new Client(database);
+        return new Client(database, new Scanner(System.in));
     }
 
     private String consoleOutput() {
@@ -55,6 +55,7 @@ public class ClientTest {
     }
 
     // ------------------ isValidCategory ------------------
+
     @Test
     public void testIsValidCategory_allFiveExactMatches() {
         Client client = clientWithInput("");
@@ -82,6 +83,7 @@ public class ClientTest {
     }
 
     // ------------------ reportItem: happy path ------------------
+
     @Test
     public void testReportItem_validInputAddsOneItemToDatabase() {
         String input = String.join("\n",
@@ -89,7 +91,7 @@ public class ClientTest {
                 "Blue 32oz water bottle",
                 "Squires Student Center",
                 "09/17/2026",
-                "Electronics") + "\n";
+                "2") + "\n"; // Electronics
         Client client = clientWithInput(input);
 
         client.reportItem();
@@ -101,6 +103,7 @@ public class ClientTest {
     }
 
     // ------------------ reportItem: bad-input re-prompt loops ------------------
+
     @Test
     public void testReportItem_blankNameIsRejectedAndReprompted() {
         String input = String.join("\n",
@@ -109,7 +112,7 @@ public class ClientTest {
                 "Blue water bottle",
                 "West End Market",
                 "09/10/2026",
-                "Miscellaneous") + "\n";
+                "5") + "\n"; // Miscellaneous
         Client client = clientWithInput(input);
 
         client.reportItem();
@@ -126,14 +129,14 @@ public class ClientTest {
                 "Black North Face backpack",
                 "Torgersen Hall",
                 "09/12/2026",
-                "Bags", // invalid category -> rejected
-                "School Supplies") + "\n"; // valid category
+                "9", // out-of-range choice -> rejected
+                "1") + "\n"; // valid: School Supplies
         Client client = clientWithInput(input);
 
         client.reportItem();
 
         assertEquals("School Supplies", database.getAllItems().get(0).getCategory());
-        assertTrue(consoleOutput().contains("not a valid category"));
+        assertTrue(consoleOutput().contains("not a valid choice"));
     }
 
     @Test
@@ -145,7 +148,7 @@ public class ClientTest {
                 "September 12th", // wrong format -> rejected
                 "13/40/2026", // impossible month/day -> rejected
                 "09/12/2026", // valid
-                "Personal Items") + "\n";
+                "4") + "\n"; // Personal Items
         Client client = clientWithInput(input);
 
         client.reportItem();
@@ -162,7 +165,7 @@ public class ClientTest {
                 "McBryde Hall",
                 "01/01/2099", // future date -> rejected
                 "09/01/2026", // valid, past date
-                "School Supplies") + "\n";
+                "1") + "\n"; // School Supplies
         Client client = clientWithInput(input);
 
         client.reportItem();
@@ -173,29 +176,31 @@ public class ClientTest {
 
     @Test
     public void testReportItem_tooLongNameIsRejectedAndReprompted() {
-        String tooLong = "A".repeat(150);
+        String tooLong = "A".repeat(150); // 150 chars, 50 over the 100-char max
         String input = String.join("\n",
                 tooLong, // too long -> rejected
                 "Water Bottle", // valid
                 "Metal water bottle",
                 "Owens Dining Hall",
                 "09/05/2026",
-                "Miscellaneous") + "\n";
+                "5") + "\n"; // Miscellaneous
         Client client = clientWithInput(input);
 
         client.reportItem();
 
         assertEquals("Water Bottle", database.getAllItems().get(0).getName());
-        assertTrue(consoleOutput().contains("too long"));
+        assertTrue(consoleOutput().contains("150/100 characters (50 over)"));
     }
 
     // ------------------ browseItems ------------------
+
     @Test
     public void testBrowseItems_onlyShowsMatchingCategory() {
         database.addItem(new LostItem("AAAAA", "Hoodie", "Black hoodie", "Squires", "09/01/2026", "Clothing"));
-        database.addItem(new LostItem("BBBBB", "Laptop Charger", "Dell charger", "Newman Library", "09/02/2026", "Electronics"));
+        database.addItem(
+                new LostItem("BBBBB", "Laptop Charger", "Dell charger", "Newman Library", "09/02/2026", "Electronics"));
 
-        Client client = clientWithInput("Clothing\n");
+        Client client = clientWithInput("3\n"); // Clothing
         client.browseItems();
 
         String output = consoleOutput();
@@ -205,7 +210,7 @@ public class ClientTest {
 
     @Test
     public void testBrowseItems_emptyCategoryPrintsNoItemsMessage() {
-        Client client = clientWithInput("Electronics\n");
+        Client client = clientWithInput("2\n"); // Electronics
         client.browseItems();
 
         assertTrue(consoleOutput().contains("No items found"));
@@ -216,13 +221,28 @@ public class ClientTest {
         database.addItem(new LostItem("CCCCC", "Keys", "Set of keys", "Squires", "09/03/2026", "Personal Items"));
 
         String input = String.join("\n",
-                "Vehicles", // invalid -> rejected
-                "Personal Items") + "\n"; // valid
+                "9", // out-of-range choice -> rejected
+                "4") + "\n"; // valid: Personal Items
         Client client = clientWithInput(input);
 
         client.browseItems();
 
         assertTrue(consoleOutput().contains("Keys"));
-        assertTrue(consoleOutput().contains("not a valid category"));
+        assertTrue(consoleOutput().contains("not a valid choice"));
+    }
+
+    @Test
+    public void testBrowseItems_nonNumericCategoryIsRejectedAndReprompted() {
+        database.addItem(new LostItem("DDDDD", "Charger", "USB-C charger", "Squires", "09/04/2026", "Electronics"));
+
+        String input = String.join("\n",
+                "Electronics", // typed name instead of a number -> rejected
+                "2") + "\n"; // valid: Electronics
+        Client client = clientWithInput(input);
+
+        client.browseItems();
+
+        assertTrue(consoleOutput().contains("Charger"));
+        assertTrue(consoleOutput().contains("not a valid choice"));
     }
 }

@@ -1,4 +1,6 @@
-import student.TestCase;
+// import student.TestCase;
+
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 /**
@@ -8,7 +10,7 @@ import java.util.ArrayList;
  * @version 9.24.26
  */
 
-public class AdministratorTest extends TestCase
+public class AdministratorTest /**extends TestCase*/
 {
     private Administrator administrator;
     private LostItemDatabase database;

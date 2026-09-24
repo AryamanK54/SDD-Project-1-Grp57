@@ -1,10 +1,13 @@
+//import student.TestCase;
+
+import static org.junit.Assert.*;
 /**
  * Test class for LostItem
  *
  * @author Group 57
  * @version 2026.09.23
  */
-public class LostItemTest extends student.TestCase {
+public class LostItemTest /**extends TestCase*/{
     private LostItem item;
 
     /**

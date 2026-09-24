@@ -3,33 +3,31 @@ import java.util.Scanner;
 /**
  * Runner class for VT Finders.
  *
- * Handles the main loop for user interaction, allowing users to report and browse lost items.
+ * Handles the main loop for user interaction, allowing users to report and
+ * browse lost items. VTFinders owns the single Scanner for the whole program
+ * (used here only to read the top-level menu choice) and hands that same
+ * Scanner to Client, which does all the detailed prompting/validation for
+ * item reports and category browsing.
  *
  * @author Phani Kathuroju
  * @version 9.23.26
  */
-public class VTFinders
-{
+public class VTFinders {
     private static LostItemDatabase database;
     private static Client client;
-    private static Administrator admin;
 
+    // ----------------------------------------------------------
     /**
-     * Starts the VT Finders program and handles user input
-     * for reporting items, browsing items, and administration.
      *
-     * @param args command line arguments
+     * @param args
      */
-    
-    public static void main(String[] args)
-    {
-        database = new LostItemDatabase();
-        client = new Client(database);
+    public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        admin = new Administrator("admin1", "adminUsername", "f21", database);
+        database = new LostItemDatabase();
+        client = new Client(database, scanner);
         boolean running = true;
 
-        while(running){
+        while (running) {
             System.out.println("VTFinders");
             System.out.println("1: Report Item");
             System.out.println("2: Browse Items");
@@ -38,144 +36,15 @@ public class VTFinders
 
             String choice = scanner.nextLine();
 
-            if (choice.equals("1"))
-            {
-                System.out.print("Enter item name:");
-                String name = scanner.nextLine();
-
-                System.out.print("Enter Description:");
-                String description = scanner.nextLine();
-
-                System.out.print("Enter Location:");
-                String location = scanner.nextLine();
-
-                System.out.print("Enter date found:");
-                String date = scanner.nextLine();
-
-                System.out.println("Choose a category:");
-                System.out.println("A: School Supplies");
-                System.out.println("B: Electronics");
-                System.out.println("C: Clothing");
-                System.out.println("D: Personal Items");
-                System.out.println("E: Miscellaneous");
-
-                String categoryChoice = scanner.nextLine();
-                String category = "";
-
-                if (categoryChoice.equals("A"))
-                {
-                    category = "School Supplies";
-                }
-
-                else if (categoryChoice.equals("B"))
-                {
-                    category = "Electronics";
-                }
-
-                else if (categoryChoice.equals("C"))
-                {
-                    category = "Clothing";
-                }
-
-                else if (categoryChoice.equals("D"))
-                {
-                    category = "Personal Items";
-                }
-
-                else if (categoryChoice.equals("E"))
-                {
-                    category = "Miscellaneous";
-                }
-
-                client.reportItem(name, description, location, date, category);
-
-            }
-            else if (choice.equals("2"))
-            {
-                System.out.println("Choose a category:");
-                System.out.println("A: School Supplies");
-                System.out.println("B: Electronics");
-                System.out.println("C: Clothing");
-                System.out.println("D: Personal Items");
-                System.out.println("E: Miscellaneous");
-
-                String categoryChoice = scanner.nextLine();
-                String category = "";
-
-                if (categoryChoice.equals("A"))
-                {
-                    category = "School Supplies";
-                }
-
-                else if (categoryChoice.equals("B"))
-                {
-                    category = "Electronics";
-                }
-
-                else if (categoryChoice.equals("C"))
-                {
-                    category = "Clothing";
-                }
-
-                else if (categoryChoice.equals("D"))
-                {
-                    category = "Personal Items";
-                }
-
-                else if (categoryChoice.equals("E"))
-                {
-                    category = "Miscellaneous";
-                }
-
-                client.browseItems(category);
-            }
-            else if (choice.equals("3"))
-            {
-                System.out.print("Enter admin username: ");
-                String username = scanner.nextLine();
-
-                System.out.print("Enter admin password: ");
-                String password = scanner.nextLine();
-
-                if (admin.authentication(username, password))
-                {
-                    boolean adminRunning = true;
-                    while (adminRunning)
-                    {
-                        System.out.println("Administration");
-                        System.out.println("1: View All Items");
-                        System.out.println("2: Remove Item");
-                        System.out.println("3: Exit Administration");
-
-                        String adminChoice = scanner.nextLine();
-
-                        if (adminChoice.equals("1"))
-                        {
-                            System.out.println(admin.viewAllItems());
-                        }
-                        else if (adminChoice.equals("2"))
-                        {
-                            System.out.print("Enter item ID:");
-                            String itemId = scanner.nextLine();
-                            admin.removeItem(itemId);
-                        }
-                        else if(adminChoice.equals("3"))
-                        {
-                            System.out.println("Leaving administrative mode");
-                            adminRunning = false;
-                        }
-                    }
-                }
-                else
-                {
-                    System.out.println("invalid username or password");
-                }
-            }
-            else if (choice.equals("4"))
-            {
-                System.out.println("Come back if you find something!");
+            if (choice.equals("1")) {
+                client.reportItem();
+            } else if (choice.equals("2")) {
+                client.browseItems();
+            } else if (choice.equals("3")) {
+                // admin
+            } else if (choice.equals("4")) {
                 running = false;
-            }   
+            }
         }
 
         scanner.close();
