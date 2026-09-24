@@ -126,6 +126,7 @@ public class VTFinders
             }
             else if (choice.equals("4"))
             {
+                System.out.println("Come back if you find something!");
                 running = false;
             }   
         }
