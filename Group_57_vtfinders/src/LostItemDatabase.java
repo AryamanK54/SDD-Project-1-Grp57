@@ -14,12 +14,11 @@ public class LostItemDatabase {
      * Saves a new item to the ArrayList.
      *
      * @param item
-     *            the item to store
+     *             the item to store
      */
     public void addItem(LostItem item) {
         items.add(item);
     }
-
 
     /**
      * @return every stored item, in the order they were reported
@@ -27,7 +26,6 @@ public class LostItemDatabase {
     public ArrayList<LostItem> getAllItems() {
         return items;
     }
-
 
     /**
      * Returns a filtered list of items matching the given category
@@ -49,7 +47,7 @@ public class LostItemDatabase {
 
                 for (int i = 0; i < cat.length(); i++) {
                     if (Character.toLowerCase(cat.charAt(i)) != Character
-                        .toLowerCase(category.charAt(i))) {
+                            .toLowerCase(category.charAt(i))) {
                         matches = false;
                         break;
                     }
@@ -63,4 +61,26 @@ public class LostItemDatabase {
         }
         return result;
     }
+
+    /**
+     * @param id
+     * @param cat
+     * 
+     * Removes the item matching both the given ID and category from the
+     * database. Both are required to match — checking ID alone would be
+     * enough to find the item, but also requiring category catches a
+     * typo'd
+     * ID that happens to collide with a different item.
+     */
+    public String removeItem(String id, String category) {
+        for (int i = 0; i < items.size(); i++) {
+            LostItem item = items.get(i);
+            if (item.getId().equals(id) && item.getCategory().equalsIgnoreCase(category)) {
+                items.remove(i);
+                return item.getName() + " (ID: " + item.getId() + ") has been removed.";
+            }
+        }
+        return "No item found with that ID and category.";
+    }
+
 }

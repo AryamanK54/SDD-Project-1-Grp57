@@ -55,10 +55,11 @@ public class Administrator
     /* Removes a lost item from the database.
      *
      * @param id the ID of the item to remove
+     * @param cat the category of the item
      */
-    public void removeItem(String id)
+    public void removeItem(String id, String cat)
     {
-        database.removeItem(id);
+        database.removeItem(id, cat);
     }
     
 }
