@@ -2,7 +2,7 @@
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
+// import java.util.ArrayList;
 /**
  * Tests the Aministrator class
  *
@@ -63,7 +63,7 @@ public class AdministratorTest /**extends TestCase*/
         LostItem item1 = new LostItem("1", "Backpack", "Black backpack", "library",
             "Tuesday", "Personal Items");
         database.addItem(item1);
-        administrator.removeItem("1");
+        administrator.removeItem("1", "Personal Items");
         assertEquals(0, administrator.viewAllItems().size());
     }
 
