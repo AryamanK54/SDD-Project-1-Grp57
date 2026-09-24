@@ -12,12 +12,14 @@ public class VTFinders
 {
     private static LostItemDatabase database;
     private static Client client;
+    private static Administrator admin;
     
     public static void main(String[] args)
     {
         database = new LostItemDatabase();
         client = new Client(database);
         Scanner scanner = new Scanner(System.in);
+        admin = new Administrator("admin1", "adminUsername", "f21", database);
         boolean running = true;
 
         while(running){
@@ -122,7 +124,45 @@ public class VTFinders
             }
             else if (choice.equals("3"))
             {
-                //admin
+                System.out.print("Enter admin username: ");
+                String username = scanner.nextLine();
+
+                System.out.print("Enter admin password: ");
+                String password = scanner.nextLine();
+
+                if (admin.authentication(username, password))
+                {
+                    boolean adminRunning = true;
+                    while (adminRunning)
+                    {
+                        System.out.println("Administration");
+                        System.out.println("1: View All Items");
+                        System.out.println("2: Remove Item");
+                        System.out.println("3: Exit Administration");
+
+                        String adminChoice = scanner.nextLine();
+
+                        if (adminChoice.equals("1"))
+                        {
+                            System.out.println(admin.viewAllItems());
+                        }
+                        else if (adminChoice.equals("2"))
+                        {
+                            System.out.print("Enter item ID:");
+                            String itemId = scanner.nextLine();
+                            admin.removeItem(itemId);
+                        }
+                        else if(adminChoice.equals("3"))
+                        {
+                            System.out.println("Leaving administrative mode");
+                            adminRunning = false;
+                        }
+                    }
+                }
+                else
+                {
+                    System.out.println("invalid username or password");
+                }
             }
             else if (choice.equals("4"))
             {
