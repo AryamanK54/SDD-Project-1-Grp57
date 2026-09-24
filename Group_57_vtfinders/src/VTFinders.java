@@ -13,6 +13,13 @@ public class VTFinders
     private static LostItemDatabase database;
     private static Client client;
     private static Administrator admin;
+
+    /**
+     * Starts the VT Finders program and handles user input
+     * for reporting items, browsing items, and administration.
+     *
+     * @param args command line arguments
+     */
     
     public static void main(String[] args)
     {
