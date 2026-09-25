@@ -90,7 +90,7 @@ public class LostItemDatabase {
             LostItem item = items.get(i);
             if (item.getId().equals(id) && item.getCategory().equalsIgnoreCase(category)) {
                 items.remove(i);
-                System.out.println(item.getName() + " (ID: " + item.getId() + ") has been removed.");
+                System.out.println(item.getName() + " (ID (1-5): " + item.getId() + ") has been removed.");
                 return;
             }
         }
