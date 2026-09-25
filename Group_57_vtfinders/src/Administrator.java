@@ -57,7 +57,7 @@ public class Administrator
      * @param id the ID of the item to remove
      * @param cat the category of the item
      */
-    public void removeItem(String id, String cat)
+    public void removeItem(String id, int cat)
     {
         database.removeItem(id, cat);
     }
