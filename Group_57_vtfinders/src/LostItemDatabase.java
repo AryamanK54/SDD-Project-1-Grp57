@@ -96,5 +96,4 @@ public class LostItemDatabase {
         }
         System.out.println("No item found with that ID and category.");
     }
-
 }
