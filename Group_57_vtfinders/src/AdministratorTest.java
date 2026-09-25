@@ -63,7 +63,7 @@ public class AdministratorTest /**extends TestCase*/
         LostItem item1 = new LostItem("1", "Backpack", "Black backpack", "library",
             "Tuesday", "Personal Items");
         database.addItem(item1);
-        administrator.removeItem("1", "Personal Items");
+        administrator.removeItem("1", 4);
         assertEquals(0, administrator.viewAllItems().size());
     }
 

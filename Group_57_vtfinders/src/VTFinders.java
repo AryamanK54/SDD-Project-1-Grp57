@@ -73,7 +73,7 @@ public class VTFinders {
                             String itemId = scanner.nextLine();
                             
                             System.out.print("Enter category:");
-                            String cat = scanner.nextLine();
+                            int cat = scanner.nextInt();
 
                             admin.removeItem(itemId, cat);
                         }
