@@ -66,21 +66,35 @@ public class LostItemDatabase {
      * @param id
      * @param cat
      * 
-     * Removes the item matching both the given ID and category from the
-     * database. Both are required to match — checking ID alone would be
-     * enough to find the item, but also requiring category catches a
-     * typo'd
-     * ID that happens to collide with a different item.
+     *            Removes the item matching both the given ID and category from the
+     *            database. Both are required to match — checking ID alone would be
+     *            enough to find the item, but also requiring category catches a
+     *            typo'd
+     *            ID that happens to collide with a different item.
      */
-    public String removeItem(String id, String category) {
+    public void removeItem(String id, int cat) {
+        String category = "";
+        if(cat == 1) {
+            category = "School Supplies";
+        } else if (cat == 2) {
+            category = "Electronics";
+        } else if (cat == 3) {
+            category = "Clothing";
+        } else if (cat == 4) {
+            category = "Personal Items";
+        } else if (cat == 5) {
+            category = "Miscellaneous";
+        }
+
         for (int i = 0; i < items.size(); i++) {
             LostItem item = items.get(i);
             if (item.getId().equals(id) && item.getCategory().equalsIgnoreCase(category)) {
                 items.remove(i);
-                return item.getName() + " (ID: " + item.getId() + ") has been removed.";
+                System.out.println(item.getName() + " (ID: " + item.getId() + ") has been removed.");
+                return;
             }
         }
-        return "No item found with that ID and category.";
+        System.out.println("No item found with that ID and category.");
     }
 
 }
