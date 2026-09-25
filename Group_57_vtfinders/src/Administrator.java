@@ -11,8 +11,8 @@ import java.util.ArrayList;
 public class Administrator
 {
     private String adminId;
-    private String username = "adminUsername";
-    private String password = "f21";
+    private String username;
+    private String password;
     private LostItemDatabase database;
 
     /* Constructor for Administrator class.

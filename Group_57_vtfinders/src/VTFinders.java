@@ -16,6 +16,8 @@ public class VTFinders {
     private static LostItemDatabase database;
     private static Client client;
     private static Administrator admin;
+    
+    
 
     // ----------------------------------------------------------
     /**
@@ -27,6 +29,7 @@ public class VTFinders {
         database = new LostItemDatabase();
         client = new Client(database, scanner);
         boolean running = true;
+        admin = new Administrator("admin1","adminUsername","f21", database);
 
         while (running) {
             System.out.println("VTFinders");
